@@ -66,7 +66,9 @@ public class CustomContact extends View {
         right.set(getWidth() - right_width, 0 , getWidth(), right_heigth);
         canvas.drawRect(left, leftPaint);
         canvas.drawRect(right, rightPaint);
-        canvas.drawText(contact, getWidth()/2, getHeight()/2, textPaint);
+        Rect textRect = new Rect();
+        textPaint.getTextBounds(contact,0,contact.length(),textRect); // для расположения текста посередине
+        canvas.drawText(contact, getWidth()/2 - textRect.width()/2, getHeight()/2 + textRect.height()/2, textPaint);
     }
 
     @Override
@@ -79,6 +81,12 @@ public class CustomContact extends View {
          contact = "";
          textPaint = new Paint();
          textPaint.setColor(Color.BLACK);
+         textPaint.setAntiAlias(true);
+         textPaint.setTextSize(70.0f);
+         textPaint.setStrokeWidth(2.0f);
+         textPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+
          leftPaint = new Paint();
          leftPaint.setColor(getResources().getColor(R.color.call_color));
          rightPaint = new Paint();
