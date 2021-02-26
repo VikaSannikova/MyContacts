@@ -103,7 +103,7 @@ public class CustomContact extends LinearLayout {
         rightTV = (TextView) findViewById(R.id.cancel_call);
 
         centerTV.setBackgroundColor(Color.CYAN);
-        centerTV.setWidth(500);
+        //centerTV.setWidth(500);
         centerTV.setGravity(Gravity.CENTER);
 
 
