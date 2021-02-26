@@ -29,16 +29,14 @@ public class ContactAdapter extends  RecyclerView.Adapter<ContactAdapter.ViewHol
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.contact_row, parent, false);
-        return new ViewHolder(view);
+        CustomContact customContact = new CustomContact(parent.getContext());
+        return new ViewHolder(customContact);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Contact contact = contactList.get(position);
-        TextView tf = (TextView) holder.itemView.findViewById(R.id.contact_name);
-        tf.setText(contact.getName());
+        ((CustomContact) holder.itemView).centerTV.setText(contact.getName());
     }
 
     @Override
@@ -47,7 +45,7 @@ public class ContactAdapter extends  RecyclerView.Adapter<ContactAdapter.ViewHol
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull CustomContact itemView) {
             super(itemView);
         }
     }
