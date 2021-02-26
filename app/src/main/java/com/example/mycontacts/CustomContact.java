@@ -1,115 +1,91 @@
 package com.example.mycontacts;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.icu.util.Measure;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.solver.widgets.Rectangle;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-public class CustomContact extends LinearLayout {
-    TextView leftTV, centerTV, rightTV;
+public class CustomContact extends View {
+    Rect left = new Rect();
+    Rect right = new Rect();
+    Paint textPaint, leftPaint, rightPaint;
+    int left_x, left_y, left_width, left_heigth;
+    int right_x, right_y, right_width, right_heigth;
+    int viewHight = 100;
 
+    String contact;
 
-
-    public CustomContact(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+    public CustomContact(Context context) {
+        super(context);
+        init();
     }
 
-    public CustomContact(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CustomContact(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CustomContact);
+        int name = typedArray.getInt(R.styleable.CustomContact_user_name,0);
+        typedArray.recycle();
+        init();
+    }
+
+    public CustomContact(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
-//    public CustomContact(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-//        super(context, attrs, defStyleAttr, defStyleRes);
-//        init();
-//    }
-
-    public TextView getLeftTV() {
-        return leftTV;
-    }
-
-    public void setLeftTV(TextView leftTV) {
-        this.leftTV = leftTV;
-    }
-
-    public TextView getCenterTV() {
-        return centerTV;
-    }
-
-    public void setCenterTV(TextView centerTV) {
-        this.centerTV = centerTV;
-    }
-
-    public TextView getRightTV() {
-        return rightTV;
-    }
-
-    public void setRightTV(TextView rightTV) {
-        this.rightTV = rightTV;
-    }
-
-    public CustomContact(@NonNull Context context) {
-        super(context);
-        init();
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(widthMeasureSpec, viewHight);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if(canvas == null) {
+            return;
+        }
+        canvas.drawColor(Color.WHITE);
+        left.set(0, 0 ,left_width, left_heigth);
+        right.set(getWidth() - right_width, 0 , getWidth(), right_heigth);
+        canvas.drawRect(left, leftPaint);
+        canvas.drawRect(right, rightPaint);
+        canvas.drawText(contact, getWidth()/2, getHeight()/2, textPaint);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN: {
-
-            }
-            case MotionEvent.ACTION_UP:  {
-
-            }
-            case MotionEvent.ACTION_MOVE: {
-
-            }
-            case MotionEvent.ACTION_CANCEL: {
-
-            }
-        }
-        return true;
+        return super.onTouchEvent(event);
     }
 
-    private void init(){
-        inflate(getContext(), R.layout.contact_row,this);
-        leftTV = (TextView) findViewById(R.id.make_call);
-        centerTV = (TextView) findViewById(R.id.contact_name);
-        rightTV = (TextView) findViewById(R.id.cancel_call);
 
-        centerTV.setBackgroundColor(Color.CYAN);
-        //centerTV.setWidth(500);
-        centerTV.setGravity(Gravity.CENTER);
-
-
-        leftTV.setVisibility(GONE);
-        rightTV.setVisibility(GONE);
-        centerTV.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);
-        this.invalidate();
+    public void init(){
+         contact = "";
+         textPaint = new Paint();
+         textPaint.setColor(Color.BLACK);
+         leftPaint = new Paint();
+         leftPaint.setColor(getResources().getColor(R.color.call_color));
+         rightPaint = new Paint();
+         rightPaint.setColor(getResources().getColor(R.color.cancel_color));
+         left_width = 200;
+         left_heigth = viewHight;
+         right_width = 200;
+         right_heigth = viewHight;
     }
 }
