@@ -1,5 +1,6 @@
 package com.example.mycontacts;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -10,10 +11,12 @@ import android.graphics.Rect;
 import android.icu.util.Measure;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,14 +26,22 @@ import androidx.constraintlayout.solver.widgets.Rectangle;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class CustomContact extends View {
+
+    enum SwipeDirection {
+        LEFT, RIGHT, STAY
+    }
+
+
     Rect left = new Rect();
     Rect right = new Rect();
     Paint textPaint, leftPaint, rightPaint;
     int left_x, left_y, left_width, left_heigth;
     int right_x, right_y, right_width, right_heigth;
     int viewHight = 100;
-
     String contact;
+
+    SwipeDirection swipeDirection = SwipeDirection.STAY;
+    float startX, startY, endX, endY;
 
     public CustomContact(Context context) {
         super(context);
@@ -73,9 +84,110 @@ public class CustomContact extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN: {
+                startX = event.getX();
+                startY = event.getY();
+                break;
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                endX = event.getX();
+                endY = event.getY();
+                setSwipeDirection();
+                break;
+            }
+        }
+        return true;
     }
 
+    public void setSwipeDirection(){
+        float deltaX = endX - startX;
+        float deltaY = endY - startY;
+        if (deltaX > 100) {
+            rightSwipe();
+            swipeDirection = SwipeDirection.RIGHT;
+        } else if (deltaX < -100) {
+            leftSwipe();
+            swipeDirection = SwipeDirection.LEFT;
+        } else {
+            swipeDirection = SwipeDirection.STAY;
+
+        }
+        Log.d("SWIPE", swipeDirection.name());
+    }
+
+    public void leftSwipe(){
+        switch (swipeDirection) {
+            case LEFT: {
+                drawContact();
+            }
+            case RIGHT: {
+                break;
+            }
+            case STAY: {
+                drawCancel();
+                break;
+            }
+        }
+    }
+
+    public void rightSwipe(){
+        switch (swipeDirection) {
+            case RIGHT: {
+                drawContact();
+                break;
+            }
+            case LEFT: {
+                break;
+            }
+            case STAY: {
+                drawCall();
+                break;
+            }
+        }
+    }
+
+    private void drawCancel() {
+        ValueAnimator cancelAnimator = ValueAnimator.ofInt(0, getWidth());
+        cancelAnimator.setDuration(1000);
+        cancelAnimator.setInterpolator(new DecelerateInterpolator());
+        cancelAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animateCancel((int)cancelAnimator.getAnimatedValue());
+            }
+        });
+        cancelAnimator.start();
+        swipeDirection = SwipeDirection.RIGHT;
+    }
+
+    private void animateCancel(int animatedValue) {
+        right_width = animatedValue;
+        invalidate();
+    }
+
+    private void drawCall() {
+        ValueAnimator callAnimator = ValueAnimator.ofInt(0, getWidth());
+        callAnimator.setDuration(1000);
+        callAnimator.setInterpolator(new DecelerateInterpolator());
+        callAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animateCall((int)callAnimator.getAnimatedValue());
+            }
+        });
+        callAnimator.start();
+        swipeDirection = SwipeDirection.RIGHT;
+    }
+
+    private void animateCall(int animatedValue) {
+        left_width = animatedValue;
+        invalidate();
+    }
+
+    private void drawContact() {
+    }
 
     public void init(){
          contact = "";
@@ -91,9 +203,9 @@ public class CustomContact extends View {
          leftPaint.setColor(getResources().getColor(R.color.call_color));
          rightPaint = new Paint();
          rightPaint.setColor(getResources().getColor(R.color.cancel_color));
-         left_width = 200;
+         left_width = 0;
          left_heigth = viewHight;
-         right_width = 200;
+         right_width = 0;
          right_heigth = viewHight;
     }
 }
