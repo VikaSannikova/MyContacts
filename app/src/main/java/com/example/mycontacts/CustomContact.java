@@ -106,13 +106,12 @@ public class CustomContact extends View {
         float deltaY = endY - startY;
         if (deltaX > 100) {
             rightSwipe();
-            swipeDirection = SwipeDirection.RIGHT;
+            //swipeDirection = SwipeDirection.RIGHT;
         } else if (deltaX < -100) {
             leftSwipe();
-            swipeDirection = SwipeDirection.LEFT;
+            //swipeDirection = SwipeDirection.LEFT;
         } else {
-            swipeDirection = SwipeDirection.STAY;
-
+            //swipeDirection = SwipeDirection.STAY;
         }
         Log.d("SWIPE", swipeDirection.name());
     }
@@ -121,6 +120,7 @@ public class CustomContact extends View {
         switch (swipeDirection) {
             case LEFT: {
                 drawContact();
+                break;
             }
             case RIGHT: {
                 break;
@@ -158,8 +158,8 @@ public class CustomContact extends View {
                 animateCancel((int)cancelAnimator.getAnimatedValue());
             }
         });
-        cancelAnimator.start();
         swipeDirection = SwipeDirection.RIGHT;
+        cancelAnimator.start();
     }
 
     private void animateCancel(int animatedValue) {
@@ -177,8 +177,9 @@ public class CustomContact extends View {
                 animateCall((int)callAnimator.getAnimatedValue());
             }
         });
+        swipeDirection = SwipeDirection.LEFT;
         callAnimator.start();
-        swipeDirection = SwipeDirection.RIGHT;
+
     }
 
     private void animateCall(int animatedValue) {
@@ -187,6 +188,42 @@ public class CustomContact extends View {
     }
 
     private void drawContact() {
+        ValueAnimator closeCallAnimator = ValueAnimator.ofInt(getWidth(), 0);
+        closeCallAnimator.setDuration(1000);
+        closeCallAnimator.setInterpolator(new DecelerateInterpolator());
+        closeCallAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animateCall((int)closeCallAnimator.getAnimatedValue());
+            }
+        });
+        ValueAnimator closeCancelAnimator = ValueAnimator.ofInt(getWidth(), 0);
+        closeCancelAnimator.setDuration(1000);
+        closeCancelAnimator.setInterpolator(new DecelerateInterpolator());
+        closeCancelAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animateCancel((int)closeCancelAnimator.getAnimatedValue());
+            }
+        });
+        if(swipeDirection == SwipeDirection.LEFT) {
+            closeCallAnimator.start();
+        } else if (swipeDirection == SwipeDirection.RIGHT) {
+            closeCancelAnimator.start();
+        }
+        swipeDirection = SwipeDirection.STAY;
+    }
+
+    private void animateText(int animatedValue) {
+        if (swipeDirection == SwipeDirection.LEFT) {
+            left_width = animatedValue;
+            invalidate();
+        } else if (swipeDirection == SwipeDirection.RIGHT) {
+            right_width = animatedValue;
+            invalidate();
+        } else {
+             // nothing
+        }
     }
 
     public void init(){
